@@ -23,6 +23,8 @@ class Controller{
 			$this->LoginView->getRequestUserName() === $this->User->getUserName() &&
 			$this->LoginView->getRequestPassword() === $this->User->getPassword()) {
 			return true;
+		} else if(isset($_SESSION["PHPSESSID"])) {
+			return true;
 		}
 		return false;
 	}

@@ -22,7 +22,7 @@ class LoginView {
 		$message = '';
 
 		if(!$isLoggedIn){
-			if($_SERVER['REQUEST_METHOD'] == 'POST') {
+			if($_SERVER['REQUEST_METHOD'] == 'POST' && !$this->getRequestView()) {
 				if($this->getRequestUserName() === "") {
 					$message = 'Username is missing';
 				} else if($this->getRequestPassword() === "") {
@@ -36,6 +36,7 @@ class LoginView {
 		else if ($isLoggedIn){
 			$message = 'Welcome';
 			$response = $this->generateLogoutButtonHTML($message);
+			$_SESSION["LoggedIn"] = "true";
 		}
 		
 		return $response;
@@ -84,7 +85,7 @@ class LoginView {
 	
 	//CREATE GET-FUNCTIONS TO FETCH REQUEST VARIABLES
 	public function getRequestUserName() {
-		if($_SERVER['REQUEST_METHOD'] == 'POST')
+		if($_SERVER['REQUEST_METHOD'] == 'POST' && !$this->getRequestView())
 			return $_REQUEST[self::$name];
 		else
 			return "";
