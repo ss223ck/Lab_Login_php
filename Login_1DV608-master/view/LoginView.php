@@ -9,7 +9,6 @@ class LoginView {
 	private static $cookiePassword = 'LoginView::CookiePassword';
 	private static $keep = 'LoginView::KeepMeLoggedIn';
 	private static $messageId = 'LoginView::Message';
-	private $usrName = '';
 	
 
 	/**
@@ -19,21 +18,26 @@ class LoginView {
 	 *
 	 * @return  void BUT writes to standard output and cookies!
 	 */
-	public function response() {
+	public function response($isLoggedIn) {
 		$message = '';
 
-		if($_SERVER['REQUEST_METHOD'] == 'POST'){
-			if($_POST[self::$name] === "") {
-				$message = 'Username is missing';
-			} else if($_POST[self::$password] === "") {
-				$message = 'Password is missing';
-				$this->usrName = $_POST[self::$name];
+		if(!$isLoggedIn){
+			if($_SERVER['REQUEST_METHOD'] == 'POST') {
+				if($this->getRequestUserName() === "") {
+					$message = 'Username is missing';
+				} else if($this->getRequestPassword() === "") {
+					$message = 'Password is missing';
+				} else {
+					$message = 'Wrong name or password';
+				}
 			}
+			$response = $this->generateLoginFormHTML($message);
+		}
+		else if ($isLoggedIn){
+			$message = 'Welcome';
+			$response = $this->generateLogoutButtonHTML($message);
 		}
 		
-		
-		$response = $this->generateLoginFormHTML($message);
-		//$response .= $this->generateLogoutButtonHTML($message);
 		return $response;
 	}
 
@@ -64,7 +68,7 @@ class LoginView {
 					<p id="' . self::$messageId . '">' . $message . '</p>
 					
 					<label for="' . self::$name . '">Username :</label>
-					<input type="text" id="' . self::$name . '" name="' . self::$name . '" value="'. $this->usrName .'" />
+					<input type="text" id="' . self::$name . '" name="' . self::$name . '" value="'. $this->getRequestUserName() .'" />
 
 					<label for="' . self::$password . '">Password :</label>
 					<input type="password" id="' . self::$password . '" name="' . self::$password . '" />
@@ -79,8 +83,18 @@ class LoginView {
 	}
 	
 	//CREATE GET-FUNCTIONS TO FETCH REQUEST VARIABLES
-	private function getRequestUserName() {
-		//RETURN REQUEST VARIABLE: USERNAME
+	public function getRequestUserName() {
+		if($_SERVER['REQUEST_METHOD'] == 'POST')
+			return $_REQUEST[self::$name];
+		else
+			return "";
 	}
-	
+	public function getRequestPassword() {
+		return $_REQUEST[self::$password];
+	}
+	public function getRequestView(){
+		if(array_key_exists(self::$logout, $_REQUEST))
+			return true;
+		return false;
+	}
 }
