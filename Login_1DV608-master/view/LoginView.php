@@ -18,8 +18,11 @@ class LoginView {
 	 *
 	 * @return  void BUT writes to standard output and cookies!
 	 */
+
+	//Skapa breakout funktioner.
 	public function response($isLoggedIn) {
 		$message = '';
+		$response = '';
 
 		if(!$isLoggedIn){
 			if($_SERVER['REQUEST_METHOD'] == 'POST' && !$this->getRequestView()) {
@@ -98,4 +101,18 @@ class LoginView {
 			return true;
 		return false;
 	}
+
+	public function testUserInput($User){
+		if($_SERVER['REQUEST_METHOD'] == 'POST' &&
+			!$this->getRequestView() &&
+			$this->getRequestUserName() === $User->getUserName() &&
+			$this->getRequestPassword() === $User->getPassword()) {
+			return true;
+		} else if(isset($_SESSION["PHPSESSID"])) {
+			return true;
+		}
+		return false;
+	}
+
+	//Skapa metoder som anvgör response eller skapar medelande
 }
