@@ -10,6 +10,7 @@ class LoginView {
 	private static $keep = 'LoginView::KeepMeLoggedIn';
 	private static $messageId = 'LoginView::Message';
 	private static $loginStatus = 'LoggedIn';
+	private static $message = 'MessageForOutPut';
 	
 
 	/**
@@ -26,16 +27,18 @@ class LoginView {
 		$response = '';
 
 		if(!$isLoggedIn){
-			if($this->testRequestType() && isset($_POST[self::$login])) {
+			if(isset($_SESSION[self::$message])){
+				$message = $_SESSION[self::$message];
+				$_SESSION[self::$message] = null;
+			} else if($this->testRequestType() && isset($_POST[self::$login])) {
 				$message = $this->testInputValues();
-			} else if($this->testRequestType()){
-				$message = "Bye bye!";
 			}
 			$response = $this->generateLoginFormHTML($message);
 		}
 		else if ($isLoggedIn){
-			if($this->testRequestType()){
-				$message = "welcome";
+			if(isset($_SESSION[self::$message])){
+				$message = $_SESSION[self::$message];
+				$_SESSION[self::$message] = null;
 			}
 			$response = $this->generateLogoutButtonHTML($message);
 			$_SESSION[self::$loginStatus] = "true";
@@ -107,6 +110,7 @@ class LoginView {
 		if( $this->testRequestType() &&
 			$this->getRequestUserName() === $User->getUserName() &&
 			$this->getRequestPassword() === $User->getPassword()) {
+			$_SESSION[self::$message] = "Welcome";
 			return true;
 		}
 		return false;
@@ -120,6 +124,9 @@ class LoginView {
 	public function isLogoutPressed(){
 		if(isset($_POST[self::$logout])) {
 			$_SESSION[self::$loginStatus] = "false";
+			$_SESSION[self::$message] = "Bye bye!";
+			header("Location: " . $_SERVER['REQUEST_URI']);
+   			exit();
 		}
 		return false;
 	}
