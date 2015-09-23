@@ -9,6 +9,7 @@ class LoginView {
 	private static $cookiePassword = 'LoginView::CookiePassword';
 	private static $keep = 'LoginView::KeepMeLoggedIn';
 	private static $messageId = 'LoginView::Message';
+	private static $loginStatus = 'LoggedIn';
 	
 
 	/**
@@ -25,21 +26,17 @@ class LoginView {
 		$response = '';
 
 		if(!$isLoggedIn){
-			if($_SERVER['REQUEST_METHOD'] == 'POST' && !$this->getRequestView()) {
-				if($this->getRequestUserName() === "") {
-					$message = 'Username is missing';
-				} else if($this->getRequestPassword() === "") {
-					$message = 'Password is missing';
-				} else {
-					$message = 'Wrong name or password';
-				}
+			if($this->testRequestType()) {
+				$message = $this->testInputValues();
 			}
 			$response = $this->generateLoginFormHTML($message);
 		}
 		else if ($isLoggedIn){
-			$message = 'Welcome';
+			if($this->testRequestType()){
+				$message = "welcome";
+			}
 			$response = $this->generateLogoutButtonHTML($message);
-			$_SESSION["LoggedIn"] = "true";
+			$_SESSION[self::$loginStatus] = "true";
 		}
 		
 		return $response;
@@ -88,7 +85,7 @@ class LoginView {
 	
 	//CREATE GET-FUNCTIONS TO FETCH REQUEST VARIABLES
 	public function getRequestUserName() {
-		if($_SERVER['REQUEST_METHOD'] == 'POST' && !$this->getRequestView())
+		if($this->testRequestType())
 			return $_REQUEST[self::$name];
 		else
 			return "";
@@ -96,23 +93,41 @@ class LoginView {
 	public function getRequestPassword() {
 		return $_REQUEST[self::$password];
 	}
-	public function getRequestView(){
-		if(array_key_exists(self::$logout, $_REQUEST))
-			return true;
-		return false;
+	//Kolla med session om man är inloggad
+	public function getRequestLoggedInStatus(){
+		return $_SESSION[self::$loginStatus] == "true";
 	}
 
 	public function testUserInput($User){
-		if($_SERVER['REQUEST_METHOD'] == 'POST' &&
-			!$this->getRequestView() &&
+		if( $this->testRequestType() &&
 			$this->getRequestUserName() === $User->getUserName() &&
 			$this->getRequestPassword() === $User->getPassword()) {
-			return true;
-		} else if(isset($_SESSION["PHPSESSID"])) {
 			return true;
 		}
 		return false;
 	}
 
+	public function testRequestType(){
+		return $_SERVER['REQUEST_METHOD'] == 'POST';
+	}
 	//Skapa metoder som anvgör response eller skapar medelande
+
+	public function isLogoutPressed(){
+		if($this->testRequestType()) {
+			$_SESSION[self::$loginStatus] == "false";
+			return false;
+		}
+		return true;
+	}
+
+	public function testInputValues(){
+		if($this->getRequestUserName() === "") {
+			$message = 'Username is missing';
+		} else if($this->getRequestPassword() === "") {
+			$message = 'Password is missing';
+		} else {
+			$message = 'Wrong name or password';
+		}
+		return $message;
+	}
 }

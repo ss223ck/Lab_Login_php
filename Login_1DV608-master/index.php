@@ -14,5 +14,5 @@ ini_set('display_errors', 'On');
 $u = new User('Admin', 'Password');
 
 $con = new Controller($u);
-
+session_start();
 $con->doLogin();
