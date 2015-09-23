@@ -1,5 +1,4 @@
 <?php
-
 class LoginView {
 	private static $login = 'LoginView::Login';
 	private static $logout = 'LoginView::Logout';
@@ -12,7 +11,6 @@ class LoginView {
 	private static $loginStatus = 'LoggedIn';
 	private static $message = 'MessageForOutPut';
 	
-
 	/**
 	 * Create HTTP response
 	 *
@@ -20,17 +18,14 @@ class LoginView {
 	 *
 	 * @return  void BUT writes to standard output and cookies!
 	 */
-
 	//Skapa breakout funktioner.
 	public function response($isLoggedIn) {
 		$message = '';
 		$response = '';
-
 		if(!$isLoggedIn){
 			if(isset($_SESSION[self::$message])){
 				$message = $_SESSION[self::$message];
 				$_SESSION[self::$message] = null;
-				echo ($_SESSION[self::$message]);
 			} else if($this->testRequestType() && isset($_POST[self::$login])) {
 				$message = $this->testInputValues();
 			}
@@ -47,7 +42,6 @@ class LoginView {
 		
 		return $response;
 	}
-
 	/**
 	* Generate HTML code on the output buffer for the logout button
 	* @param $message, String output message
@@ -76,10 +70,8 @@ class LoginView {
 					
 					<label for="' . self::$name . '">Username :</label>
 					<input type="text" id="' . self::$name . '" name="' . self::$name . '" value="'. $this->getRequestUserName() .'" />
-
 					<label for="' . self::$password . '">Password :</label>
 					<input type="password" id="' . self::$password . '" name="' . self::$password . '" />
-
 					<label for="' . self::$keep . '">Keep me logged in  :</label>
 					<input type="checkbox" id="' . self::$keep . '" name="' . self::$keep . '" />
 					
@@ -106,7 +98,6 @@ class LoginView {
 		}
 		return $_SESSION[self::$loginStatus] == "true";
 	}
-
 	public function testUserInput($User){
 		if( $this->testRequestType() &&
 			$this->getRequestUserName() === $User->getUserName() &&
@@ -116,20 +107,17 @@ class LoginView {
 		}
 		return false;
 	}
-
 	public function testRequestType(){
 		return $_SERVER['REQUEST_METHOD'] == 'POST';
 	}
 	//Skapa metoder som anvgör response eller skapar medelande
-
 	public function isLogoutPressed(){
-		if(isset($_POST[self::$loginStatus]) || $this->getRequestLoggedInStatus()) {
+		if(isset($_POST[self::$logout]) && $_SESSION[self::$loginStatus] == "true") {
 			$_SESSION[self::$loginStatus] = "false";
 			$_SESSION[self::$message] = "Bye bye!";
 		}
 		return false;
 	}
-
 	public function testInputValues(){
 		if($this->getRequestUserName() === "") {
 			$message = 'Username is missing';
