@@ -11,14 +11,13 @@ class Controller{
 		$this->LoginView = new LoginView();
 		$this->LayOutView = new LayOutView();
 		$this->DateTimeView = new DateTimeView();
+
 	}
 	public function doLogin(){
 		$userLoggedIn = false;
-		if( $this->isUserLoggedIn() || $this->isUserLogginOut() || $this->isUserCorrect()) {
+		
+		if( $this->isUserLogginOut() || $this->isUserLoggedIn() || $this->isUserCorrect()) {
 			$userLoggedIn = true;
-		}
-		if($_SERVER['REQUEST_METHOD'] == 'POST'){
-			echo('något är jävla fel');
 		}
 		$this->LayOutView->render($userLoggedIn, $this->LoginView, $this->DateTimeView);
 	}

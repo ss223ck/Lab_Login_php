@@ -11,8 +11,9 @@ error_reporting(E_ALL);
 ini_set('display_errors', 'On');
 
 //CREATE OBJECTS OF THE VIEWS
-$u = new User('Admin', 'Password');
+$u = new User('a', 'p');
+session_start();
 
 $con = new Controller($u);
-session_start();
+
 $con->doLogin();

@@ -26,8 +26,10 @@ class LoginView {
 		$response = '';
 
 		if(!$isLoggedIn){
-			if($this->testRequestType()) {
+			if($this->testRequestType() && isset($_POST[self::$login])) {
 				$message = $this->testInputValues();
+			} else if($this->testRequestType()){
+				$message = "Bye bye!";
 			}
 			$response = $this->generateLoginFormHTML($message);
 		}
@@ -85,7 +87,7 @@ class LoginView {
 	
 	//CREATE GET-FUNCTIONS TO FETCH REQUEST VARIABLES
 	public function getRequestUserName() {
-		if($this->testRequestType())
+		if($this->testRequestType() && isset($_POST[self::$login]))
 			return $_REQUEST[self::$name];
 		else
 			return "";
@@ -95,6 +97,9 @@ class LoginView {
 	}
 	//Kolla med session om man är inloggad
 	public function getRequestLoggedInStatus(){
+		if(!isset($_SESSION[self::$loginStatus])) {
+			return false;
+		}
 		return $_SESSION[self::$loginStatus] == "true";
 	}
 
@@ -113,11 +118,10 @@ class LoginView {
 	//Skapa metoder som anvgör response eller skapar medelande
 
 	public function isLogoutPressed(){
-		if($this->testRequestType()) {
-			$_SESSION[self::$loginStatus] == "false";
-			return false;
+		if(isset($_POST[self::$logout])) {
+			$_SESSION[self::$loginStatus] = "false";
 		}
-		return true;
+		return false;
 	}
 
 	public function testInputValues(){
