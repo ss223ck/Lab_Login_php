@@ -30,6 +30,7 @@ class LoginView {
 			if(isset($_SESSION[self::$message])){
 				$message = $_SESSION[self::$message];
 				$_SESSION[self::$message] = null;
+				echo ($_SESSION[self::$message]);
 			} else if($this->testRequestType() && isset($_POST[self::$login])) {
 				$message = $this->testInputValues();
 			}
@@ -122,11 +123,9 @@ class LoginView {
 	//Skapa metoder som anvgör response eller skapar medelande
 
 	public function isLogoutPressed(){
-		if(isset($_POST[self::$logout])) {
+		if(isset($_POST[self::$loginStatus]) || $this->getRequestLoggedInStatus()) {
 			$_SESSION[self::$loginStatus] = "false";
 			$_SESSION[self::$message] = "Bye bye!";
-			header("Location: " . $_SERVER['REQUEST_URI']);
-   			exit();
 		}
 		return false;
 	}
