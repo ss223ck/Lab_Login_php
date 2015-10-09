@@ -37,7 +37,7 @@ class LoginView {
 				$_SESSION[self::$message] = null;
 			}
 			$response = $this->generateLogoutButtonHTML($message);
-			$_SESSION[self::$loginStatus] = "true";
+			$_SESSION[self::$loginStatus] = true;
 		}
 		
 		return $response;
@@ -83,10 +83,11 @@ class LoginView {
 	
 	//CREATE GET-FUNCTIONS TO FETCH REQUEST VARIABLES
 	public function getRequestUserName() {
-		if($this->testRequestType() && isset($_POST[self::$login]))
+		if($this->testRequestType())
+		{
 			return $_REQUEST[self::$name];
-		else
-			return "";
+		}
+		return "";
 	}
 	public function getRequestPassword() {
 		return $_REQUEST[self::$password];
@@ -96,24 +97,16 @@ class LoginView {
 		if(!isset($_SESSION[self::$loginStatus])) {
 			return false;
 		}
-		return $_SESSION[self::$loginStatus] == "true";
+		return $_SESSION[self::$loginStatus] == true;
 	}
-	public function testUserInput($User){
-		if( $this->testRequestType() &&
-			$this->getRequestUserName() === $User->getUserName() &&
-			$this->getRequestPassword() === $User->getPassword()) {
-			$_SESSION[self::$message] = "Welcome";
-			return true;
-		}
-		return false;
-	}
+	
 	public function testRequestType(){
 		return $_SERVER['REQUEST_METHOD'] == 'POST';
 	}
 	//Skapa metoder som anvgör response eller skapar medelande
 	public function isLogoutPressed(){
-		if(isset($_POST[self::$logout]) && $_SESSION[self::$loginStatus] == "true") {
-			$_SESSION[self::$loginStatus] = "false";
+		if(isset($_POST[self::$logout]) && $_SESSION[self::$loginStatus] == true) {
+			$_SESSION[self::$loginStatus] = false;
 			$_SESSION[self::$message] = "Bye bye!";
 		}
 		return false;
@@ -127,5 +120,17 @@ class LoginView {
 			$message = 'Wrong name or password';
 		}
 		return $message;
+	}
+	public function SetUserToLoggedIn(){
+		$_SESSION[self::$loginStatus] = true;
+	}
+	public function CheckUserLoginStatus(){
+		return $_SESSION[self::$loginStatus];
+	}
+	public function InitiateLoginStatus(){
+		$_SESSION[self::$loginStatus] = false;
+	}
+	public function DisplayWelcomeMessage(){
+		$_SESSION[self::$message] = "Welcome";
 	}
 }
