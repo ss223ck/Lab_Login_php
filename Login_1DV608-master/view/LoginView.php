@@ -11,6 +11,17 @@ class LoginView {
 	private static $loginStatus = 'LoggedIn';
 	private static $message = 'MessageForOutPut';
 	
+	public function InitiateSessionVariables(){
+			if(!isset($_SESSION[self::$loginStatus])){
+				$_SESSION[self::$loginStatus] = false;
+			}
+			if(!isset($_SESSION[self::$message])){
+				$_SESSION[self::$message] = null;
+			}
+		}
+
+
+
 	/**
 	 * Create HTTP response
 	 *
@@ -19,25 +30,18 @@ class LoginView {
 	 * @return  void BUT writes to standard output and cookies!
 	 */
 	//Skapa breakout funktioner.
-	public function response($isLoggedIn) {
-		$message = '';
+	public function response() {
+		$message = $this->GenerateOutPutMessage();
 		$response = '';
-		if(!$isLoggedIn){
-			if(isset($_SESSION[self::$message])){
-				$message = $_SESSION[self::$message];
-				$_SESSION[self::$message] = null;
-			} else if($this->testRequestType() && isset($_POST[self::$login])) {
+		if($_SESSION[self::$loginStatus] == false ){
+			if($this->testRequestType() && array_key_exists(self::$login, $_POST)) {
 				$message = $this->testInputValues();
 			}
 			$response = $this->generateLoginFormHTML($message);
 		}
-		else if ($isLoggedIn){
-			if(isset($_SESSION[self::$message])){
-				$message = $_SESSION[self::$message];
-				$_SESSION[self::$message] = null;
-			}
+		//generear output om man är inloggad
+		else if ($_SESSION[self::$loginStatus]){
 			$response = $this->generateLogoutButtonHTML($message);
-			$_SESSION[self::$loginStatus] = true;
 		}
 		
 		return $response;
@@ -82,8 +86,9 @@ class LoginView {
 	}
 	
 	//CREATE GET-FUNCTIONS TO FETCH REQUEST VARIABLES
+	//need to test if request is post otherwise generateLoginForm tries to get a variable that isnt set
 	public function getRequestUserName() {
-		if($this->testRequestType())
+		if($this->testRequestType() && array_key_exists(self::$login, $_POST))
 		{
 			return $_REQUEST[self::$name];
 		}
@@ -91,13 +96,6 @@ class LoginView {
 	}
 	public function getRequestPassword() {
 		return $_REQUEST[self::$password];
-	}
-	//Kolla med session om man är inloggad
-	public function getRequestLoggedInStatus(){
-		if(!isset($_SESSION[self::$loginStatus])) {
-			return false;
-		}
-		return $_SESSION[self::$loginStatus] == true;
 	}
 	
 	public function testRequestType(){
@@ -109,7 +107,6 @@ class LoginView {
 			$_SESSION[self::$loginStatus] = false;
 			$_SESSION[self::$message] = "Bye bye!";
 		}
-		return false;
 	}
 	public function testInputValues(){
 		if($this->getRequestUserName() === "") {
@@ -127,10 +124,16 @@ class LoginView {
 	public function CheckUserLoginStatus(){
 		return $_SESSION[self::$loginStatus];
 	}
-	public function InitiateLoginStatus(){
-		$_SESSION[self::$loginStatus] = false;
-	}
+	
 	public function DisplayWelcomeMessage(){
 		$_SESSION[self::$message] = "Welcome";
+	}
+	public function GenerateOutPutMessage(){
+		$returnMessage = $_SESSION[self::$message];
+		$_SESSION[self::$message] = null;
+		return $returnMessage;
+	}
+	public function checkIfRequestIsFromLoginForm(){
+		return isset($_POST[self::$login]);
 	}
 }

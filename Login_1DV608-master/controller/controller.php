@@ -13,10 +13,15 @@ class Controller{
 		$this->LayOutView = new LayOutView();
 		$this->DateTimeView = new DateTimeView();
 		$this->MemberHandelingBLL = new MemberHandelingBLL();
+		$this->LoginView->InitiateSessionVariables();
 	}
 	public function doLogin(){
-
-		if( $this->isUserLogginOut() || $this->isUserCorrect()) {
+		//Kolla vilken form av post och gör redirect då
+		if($this->isUserLoggedIn()){
+			$this->OptionsForLoggedIn();
+		}
+		else if($this->LoginView->checkIfRequestIsFromLoginForm()){
+			$this->isUserCorrect();
 		}
 		$this->LayOutView->render($this->isUserLoggedIn(), $this->LoginView, $this->DateTimeView);
 	}
@@ -27,10 +32,8 @@ class Controller{
 			if($this->MemberHandelingBLL->testUserInput($this->User, $this->createMemberFromUserInput())) {
 				$this->LoginView->SetUserToLoggedIn();
 				$this->LoginView->DisplayWelcomeMessage();
-				return true;
 			}
 		}
-		return false;
 	}
 	//Kolla om användare har är inloggad genom session
 	public function isUserLoggedIn(){
@@ -43,5 +46,8 @@ class Controller{
 	public function createMemberFromUserInput(){
 		//Gets user input and password and creates a member from that.
 		return new User($this->LoginView->getRequestUserName(), $this->LoginView->getRequestPassword());
+	}
+	public function OptionsForLoggedIn(){
+		$this->isUserLogginOut();
 	}
 }
